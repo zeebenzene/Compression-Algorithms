@@ -1,27 +1,20 @@
-#include <iostream>
+#include <string>
 #include <fstream>
+#include <streambuf>
+#include <iostream>
+
 using namespace std;
 
-string saveCompressedFile(const string& content){
-	ofstream myfile;
-  	myfile.open (content)
-  	myfile.close();
+string openFile(const string& filename){
+	ifstream t(filename);
+    string str((istreambuf_iterator<char>(t)),
+                 istreambuf_iterator<char>());
+    return str;
 }
 
-string openFile(const string& content){
-	stringstream ss;
-	myReadFile.open("text.txt");
-	 char output[100];
- 	if (myReadFile.is_open()) {
-	while (!myReadFile.eof()) {
-
-
-    myReadFile >> output;
-    cout<<output;
-
-
- 	}
-	}
-	myReadFile.close();
-
+outputFile(const string& filename, const string& text){
+	ofstream myfile;
+  	myfile.open (filename);
+  	myfile << text;
+  	myfile.close();
 }
