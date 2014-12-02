@@ -1,67 +1,73 @@
 #include <iostream>
+#include<fstream>
 #include<string>
 #include <sstream>
+#include <stdio.h>
+#include <vector>
+
+//g++ -std=c++0x
 
 using namespace std;
 
-string run_length(const string& s)
+class Compressor
 {
-    char c = ' ';
-    int num = 0;
-    string result;
-    string::const_iterator it = s.begin();
-    for(; it != s.end(); ++it)
-    {
-        if(*it!=c)
-        {
-            if(num!=0)
-            {
-                ostringstream ss;
-                ss << num;
-                string num_s(ss.str());
-                result += num_s;
-            }
+	public:
 
-            c = *it;
-            result.push_back(c);
-
-            num = 1;
-        }
-        else
-        {
-            num++;
-        }
-    }
-
-    ostringstream ss;
-    ss << num;
-    string num_s(ss.str());
-    result += num_s;
-
-    return result;
+		virtual string compress(const string& content) = 0;
+		virtual string decompress(const string& content) = 0;
+};
 
 
-string run_length(const string& content) {
-  stringstream ss;
-  for (int i = 0; i < content.size(); ) {
-    // Each iteration of this loop represents a run
-    char current = content[i];
-    int count = 0;
 
-    // Figure out the length of the run
-    do {
-      ++i;
-      ++count;
-    } while (i < content.size() && content[i] == current);
+class RunLength: public Compressor
+{
+public:
+	string compress(const string& content) {
+	  	stringstream ss;
+	  	for (int i = 0; i < content.size(); ) {
+			char current = content[i];
+			int count = 0;
 
-    // Dump the run
-    ss << current << count;
-  }
-  return ss.str();
-}
+			do {
+		  		++i;
+		  		++count;
+			} while (i < content.size() && content[i] == current);
+				ss << current  << ' ' << count << ' ';
+	  	}
+	  	return ss.str();
+	}
+
+	string decompress(const string& content){
+		vector<string> splitarr = splitString(content);
+		stringstream ss;
+
+		for(int i = 0; i < splitarr.size(); i += 2) {
+			string toExpand = splitarr.at(i);
+			string numExpandRaw = splitarr.at(i+1);
+			int numExpand = stoi(numExpandRaw);
+			for(int i = 0; i < numExpand; i++) {
+				ss << toExpand;
+			}
+		}
+		return ss.str();
+	}
+
+
+	vector<string> splitString(const string& str) {
+	    istringstream iss(str);
+		string s;
+
+		vector<string> list;
+
+		while(getline(iss,s,' ')){
+			list.push_back(s);
+		}
+		return list;
+	}
+};
 
 int main()
 {
-    std::string test = "wwwwaaadexxxxxx";
-    cout << run_length(test) << endl;
+    RunLength word;
+	cout << word.compress("wwwwaaad2222222222343434exxxxxx");
 }
